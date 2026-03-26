@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Car Accident Claim</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1a7a72;
+    --teal-dark: #145f58;
+    --teal-light: #e8f4f3;
+    --teal-mid: #2a9d8f;
+    --bg: #f5f7f6;
+    --card: #ffffff;
+    --text: #1a2421;
+    --text-muted: #6b7c79;
+    --text-light: #9bb0ac;
+    --border: #e2ecea;
+    --step-inactive: #c8d8d5;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow-card: 0 1px 6px rgba(26,122,114,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #cddbd8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px 0;
+  }
+  .phone {
+    width: 390px;
+    background: var(--bg);
+    border-radius: 44px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.22), 0 4px 20px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+
+  /* Status bar */
+  .status-bar {
+    background: white;
+    padding: 14px 24px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .status-bar .time { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; color: var(--text); }
+  .status-icons { display: flex; gap: 6px; align-items: center; color: var(--text); }
+  .status-icons svg { width: 16px; height: 16px; }
+
+  /* Top nav */
+  .top-nav {
+    background: white;
+    padding: 6px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-back, .nav-help {
+    width: 36px; height: 36px;
+    border: none; background: transparent;
+    cursor: pointer; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .nav-help { border: 1.5px solid var(--border); color: var(--text-muted); }
+  .nav-back:hover, .nav-help:hover { background: var(--teal-light); }
+  .nav-title { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+
+  /* Steps */
+  .steps {
+    background: white;
+    padding: 16px 24px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .step-circle.done, .step-circle.active {
+    background: var(--teal); color: white;
+    box-shadow: 0 2px 10px rgba(26,122,114,0.35);
+  }
+  .step-circle.inactive { background: var(--step-inactive); color: white; }
+  .step-label { font-size: 9px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); }
+  .step-label.al { color: var(--teal); }
+  .step-connector { width: 52px; height: 2px; margin-bottom: 20px; border-radius: 2px; }
+  .step-connector.done { background: var(--teal); }
+  .step-connector.inactive { background: var(--step-inactive); }
+
+  /* Scroll */
+  .scroll-area { overflow-y: auto; max-height: 620px; padding: 16px 16px 0; scrollbar-width: none; }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* AI Card */
+  .ai-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+    border-left: 3px solid var(--teal);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 18px;
+    animation: slideIn 0.4s ease both;
+  }
+  .ai-icon {
+    width: 36px; height: 36px;
+    background: var(--teal-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal); flex-shrink: 0;
+  }
+  .ai-icon svg { width: 18px; height: 18px; }
+  .ai-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .ai-line { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .ai-line span { font-weight: 600; color: var(--teal-dark); }
+
+  /* Section header */
+  .section-header { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; letter-spacing: -0.2px; }
+
+  /* Upload grid */
+  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .upload-btn {
+    background: white;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 22px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-card);
+  }
+  .upload-btn:hover {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26,122,114,0.12);
+  }
+  .upload-icon {
+    width: 44px; height: 44px;
+    background: var(--teal-light);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--teal-mid);
+    transition: all 0.2s;
+  }
+  .upload-icon svg { width: 22px; height: 22px; }
+  .upload-label { font-size: 13px; font-weight: 600; color: var(--teal); }
+
+  /* Context card */
+  .context-card { background: white; border-radius: var(--radius); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow-card); }
+  .context-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .context-header-left { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .context-header-left svg { width: 15px; height: 15px; color: var(--teal); }
+  .edit-btn { font-size: 12px; font-weight: 600; color: var(--teal); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.15s; }
+  .edit-btn:hover { background: var(--teal-light); }
+
+  /* Map */
+  .map-preview { width: 100%; height: 110px; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .map-svg { width: 100%; height: 100%; }
+  .map-address { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-weight: 500; }
+
+  /* Date/time */
+  .dt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .dt-field { background: white; border-radius: var(--radius-sm); padding: 12px 14px; box-shadow: var(--shadow-card); }
+  .dt-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--text-light); margin-bottom: 6px; }
+  .dt-value { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .dt-value svg { width: 14px; height: 14px; color: var(--teal); }
+
+  /* Description */
+  .desc-field { background: white; border-radius: var(--radius); padding: 16px; margin-bottom: 18px; box-shadow: var(--shadow-card); }
+  .desc-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--text-light); margin-bottom: 8px; }
+  .desc-textarea { width: 100%; border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); resize: none; background: transparent; height: 64px; line-height: 1.6; }
+  .desc-textarea::placeholder { color: var(--text-light); }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%; background: var(--teal); color: white; border: none;
+    border-radius: 100px; padding: 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.1px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(26,122,114,0.35);
+    margin-bottom: 10px;
+  }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(26,122,114,0.4); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-secondary {
+    width: 100%; background: #edf2f1; color: var(--text-muted); border: none;
+    border-radius: 100px; padding: 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-bottom: 20px;
+  }
+  .btn-secondary:hover { background: #e0e9e8; color: var(--teal); }
+
+  /* Status section */
+  .status-section { background: white; padding: 18px 16px 8px; border-top: 1px solid var(--border); }
+  .status-title { font-size: 14px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 14px; }
+  .status-tab {
+    flex: 1; text-align: center; padding: 8px 4px;
+    font-size: 12px; font-weight: 600; color: var(--text-light);
+    cursor: pointer; border-bottom: 2px solid var(--border);
+    transition: color 0.2s, border-bottom-color 0.2s;
+  }
+  .status-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .status-tabs { display: flex; margin-bottom: 12px; }
+  .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; font-size: 11px; color: var(--text-light); font-weight: 500; }
+  .secure-badge svg { width: 13px; height: 13px; color: var(--teal); }
+
+  /* Bottom nav */
+  .bottom-nav { background: white; padding: 10px 0 20px; display: flex; border-top: 1px solid var(--border); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px 0; transition: all 0.15s; }
+  .nav-item svg { width: 22px; height: 22px; color: var(--text-light); }
+  .nav-item.active svg { color: var(--teal); }
+  .nav-item span { font-size: 10px; font-weight: 600; color: var(--text-light); }
+  .nav-item.active span { color: var(--teal); }
+  .nav-item:hover svg, .nav-item:hover span { color: var(--teal); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 6s4-4 11-4 11 4 11 4M5 10s3-3 7-3 7 3 7 3M9 14s1-1 3-1 3 1 3 1"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="4" height="10" rx="1"/><rect x="8" y="5" width="4" height="12" rx="1"/><rect x="14" y="3" width="4" height="14" rx="1"/><rect x="20" y="2" width="3" height="15" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3"/><rect x="4" y="9" width="12" height="7" fill="currentColor" rx="1"/></svg>
+    </div>
+  </div>
+
+  <div class="top-nav">
+    <button class="nav-back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <span class="nav-title">Car Accident Claim</span>
+    <button class="nav-help">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+    </button>
+  </div>
+
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-circle done">1</div>
+      <div class="step-label al">Details</div>
+    </div>
+    <div class="step-connector done"></div>
+    <div class="step-item">
+      <div class="step-circle active">2</div>
+      <div class="step-label al">Upload</div>
+    </div>
+    <div class="step-connector inactive"></div>
+    <div class="step-item">
+      <div class="step-circle inactive">3</div>
+      <div class="step-label">Review</div>
+    </div>
+    <div class="step-connector inactive"></div>
+    <div class="step-item">
+      <div class="step-circle inactive">4</div>
+      <div class="step-label">Submit</div>
+    </div>
+  </div>
+
+  <div class="scroll-area">
+
+    <div class="ai-card">
+      <div class="ai-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ai-title">AI Analysis</div>
+        <div class="ai-line">Detected Damage: <span>Front Bumper</span></div>
+        <div class="ai-line">Suggested: <span>Collision Damage</span></div>
+      </div>
+    </div>
+
+    <div class="section-header">Damage Evidence</div>
+    <div class="upload-grid">
+      <div class="upload-btn" id="cameraBtn" onclick="handleUpload('cameraBtn','Camera')">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <span class="upload-label">Camera</span>
+      </div>
+      <div class="upload-btn" id="galleryBtn" onclick="handleUpload('galleryBtn','Gallery')">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+        <span class="upload-label">Gallery</span>
+      </div>
+    </div>
+
+    <div class="section-header">Incident Context</div>
+
+    <div class="context-card">
+      <div class="context-header">
+        <div class="context-header-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          Current Location
+        </div>
+        <button class="edit-btn">Edit</button>
+      </div>
+      <div class="map-preview">
+        <svg class="map-svg" viewBox="0 0 340 110" xmlns="http://www.w3.org/2000/svg">
+          <rect width="340" height="110" fill="#dde8e5"/>
+          <rect x="0" y="44" width="340" height="22" fill="#c8d8d5"/>
+          <rect x="140" y="0" width="20" height="110" fill="#c8d8d5"/>
+          <line x1="0" y1="55" x2="125" y2="55" stroke="white" stroke-width="1.5" stroke-dasharray="12,8" opacity="0.7"/>
+          <line x1="175" y1="55" x2="340" y2="55" stroke="white" stroke-width="1.5" stroke-dasharray="12,8" opacity="0.7"/>
+          <rect x="0" y="0" width="130" height="40" rx="0" fill="#c8dbd7"/>
+          <rect x="170" y="0" width="170" height="40" fill="#b8ceca"/>
+          <rect x="0" y="70" width="130" height="40" fill="#c8dbd7"/>
+          <rect x="170" y="70" width="170" height="40" fill="#b8ceca"/>
+          <rect x="15" y="8" width="22" height="26" rx="3" fill="#9ab5b0" opacity="0.7"/>
+          <rect x="45" y="12" width="18" height="22" rx="3" fill="#9ab5b0" opacity="0.6"/>
+          <rect x="75" y="6" width="14" height="28" rx="3" fill="#9ab5b0" opacity="0.5"/>
+          <rect x="180" y="6" width="26" height="28" rx="3" fill="#9ab5b0" opacity="0.7"/>
+          <rect x="215" y="10" width="20" height="24" rx="3" fill="#9ab5b0" opacity="0.6"/>
+          <rect x="250" y="5" width="30" height="30" rx="3" fill="#9ab5b0" opacity="0.5"/>
+          <ellipse cx="170" cy="76" rx="9" ry="3.5" fill="rgba(26,122,114,0.3)"/>
+          <path d="M170 26 C157 26 148 35 148 46 C148 59 170 76 170 76 C170 76 192 59 192 46 C192 35 183 26 170 26 Z" fill="#1a7a72"/>
+          <circle cx="170" cy="46" r="8" fill="white"/>
+          <circle cx="170" cy="46" r="4" fill="#1a7a72"/>
+        </svg>
+      </div>
+      <div class="map-address">242 Premium Avenue, Beverly Hills, CA 90210</div>
+    </div>
+
+    <div class="dt-row">
+      <div class="dt-field">
+        <div class="dt-label">Date</div>
+        <div class="dt-value">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Oct 24, 2023
+        </div>
+      </div>
+      <div class="dt-field">
+        <div class="dt-label">Time</div>
+        <div class="dt-value">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          02:45 PM
+        </div>
+      </div>
+    </div>
+
+    <div class="desc-field">
+      <div class="desc-label">Incident Description</div>
+      <textarea class="desc-textarea" placeholder="Briefly describe what happened…"></textarea>
+    </div>
+
+    <button class="btn-primary" id="submitBtn" onclick="submitClaim()">Submit Claim</button>
+    <button class="btn-secondary" id="draftBtn" onclick="saveDraft()">Save as Draft</button>
+
+    <div class="status-section">
+      <div class="status-title">Current Status</div>
+      <div class="status-tabs">
+        <div class="status-tab active" onclick="setTab(this)">Inspection</div>
+        <div class="status-tab" onclick="setTab(this)">Approval</div>
+        <div class="status-tab" onclick="setTab(this)">Settlement</div>
+      </div>
+      <div class="secure-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        Your claim is safe and secure
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item active" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+      <span>Claims</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="1" y="3" width="15" height="13" rx="2"/>
+        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/>
+        <circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+      <span>Vehicles</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span>Support</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setTab(el) {
+    document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function setNav(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function handleUpload(id, label) {
+    const btn = document.getElementById(id);
+    const lbl = btn.querySelector('.upload-label');
+    btn.style.borderColor = 'var(--teal)';
+    btn.style.background = 'var(--teal-light)';
+    lbl.textContent = 'Opening…';
+    setTimeout(() => {
+      btn.style.borderColor = '';
+      btn.style.background = '';
+      lbl.textContent = label;
+    }, 1200);
+  }
+
+  function submitClaim() {
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Submitting…';
+    btn.style.opacity = '0.8';
+    setTimeout(() => {
+      btn.textContent = '✓ Claim Submitted!';
+      btn.style.background = '#145f58';
+      btn.style.opacity = '1';
+      setTimeout(() => {
+        btn.textContent = 'Submit Claim';
+        btn.style.background = '';
+      }, 2500);
+    }, 1400);
+  }
+
+  function saveDraft() {
+    const btn = document.getElementById('draftBtn');
+    btn.textContent = 'Draft Saved ✓';
+    btn.style.color = 'var(--teal)';
+    setTimeout(() => {
+      btn.textContent = 'Save as Draft';
+      btn.style.color = '';
+    }, 1800);
+  }
+</script>
+
+</body>
+</html>
